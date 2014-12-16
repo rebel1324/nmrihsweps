@@ -21,6 +21,7 @@ SWEP.Author			= "No More Room In Hell"
 SWEP.Contact		= ""
 SWEP.Purpose		= ""
 SWEP.Instructions	= ""
+SWEP.Base				= "weapon_base"
 
 SWEP.Spawnable			= false
 SWEP.AdminSpawnable		= false
@@ -68,7 +69,6 @@ if (CLIENT) then
 		[21] = EVENT_VMUZZLE,
 	}
 
-	local function fTime() return math.Clamp(FrameTime(), 1/15, 1) end
 
 	local posOutput = Vector(0, 0, 0)
 	local posTarget = Vector(0, 0, 0)
@@ -76,42 +76,66 @@ if (CLIENT) then
 	local angTarget = Angle(0, 0, 0)
 	local oldAimVec = Vector(0 ,0, 0)
 	local viewMoveMul = .01
-	function SWEP:GetViewModelPosition( pos, ang )
-		local vel = self.Owner:GetVelocity():Length()
-		local owner = self.Owner
-		local ws = owner:GetWalkSpeed()
+	local curStep = 0
+	local sin, cos = math.sin, math.cos
+	local clamp = math.Clamp
 
-		local aimVec = owner:GetAimVector()
-		local aimLen = (aimVec - oldAimVec)
-		oldAimVec = aimVec
-		angTarget = Angle(0, 0, 0)
+	local function fTime() return math.Clamp(FrameTime(), 1/15, 1) end
 
-		if (owner:OnGround() and owner:KeyDown(IN_SPEED) and vel > ws*1.01) then
-			--moveVector = 
-		elseif (owner:OnGround() and vel > ws*.3) then
-			if (self:GetIronsight() != true) then
-				posTarget = Vector(math.sin(CurTime()*2.5)*.2, 0, math.abs(math.cos(CurTime()*5)*.9)) - Vector(0, 0, 1)
-			else
-				posTarget = Vector(math.sin(CurTime()*2.5)*.02, 0, math.abs(math.cos(CurTime()*5)*.1))
-			end
-		else
-			if (self:GetIronsight() != true) then
-				posTarget = Vector(math.sin(CurTime()*.5)*.1, 0, math.cos(CurTime())*.3)
-			else
-				posTarget = Vector(0, 0, 0)
-			end
+	local function int(delta, from, to)
+		local intType = type(from)
+
+		if intType == "Angle" then
+			from = util_NormalizeAngles(from)
+			to = util_NormalizeAngles(to)
 		end
 
+		local out = from + (to-from)*delta
+
+		return out
+	end
+
+	local bobPos = Vector()
+	local lateBobPos = Vector()
+	local restPos = Vector()
+	SWEP.aimAngle = Angle()
+	SWEP.oldAimAngle = Angle()
+	SWEP.aimDiff = Angle()
+	SWEP.ironMul = 1
+	function SWEP:GetViewModelPosition( pos, ang )
+		local owner = self.Owner
+		local EP, EA = EyePos(), EyeAngles()
+		local PA = owner:GetViewPunchAngles()
+		local vel = clamp(owner:GetVelocity():Length2D()/owner:GetWalkSpeed(), 0, 1.5)
+		local rest = 1 - clamp(owner:GetVelocity():Length2D()/20, 0, 1)
+
+		posOutput = Vector(0, 0, 0)
+		curStep = curStep + (vel/math.pi)*(fTime()*2)
+		local ws = owner:GetWalkSpeed()
+
+		self.aimAngle = owner:EyeAngles()	
+		self.aimDiff = self.aimAngle - self.oldAimAngle
+		self.oldAimAngle = self.aimAngle
+		self.ironMul = Lerp(fTime()*.1, self.ironMul, (self:GetIronsight() or self:GetSprint()) and .1 or 1)
+
+		local Right 	= EA:Right()
+		local Up 		= EA:Up()
+		local Forward 	= EA:Forward()	
+
+		bobPos[1] = -sin(curStep/2)*vel
+		bobPos[2] = sin(curStep/4)*vel*1.5
+		bobPos[3] = sin(curStep)/1.5*vel
+		restPos[3] = sin(CurTime()*2)*4
+		restPos[1] = cos(CurTime()*1)*3
+
+		posTarget = bobPos*15*self.ironMul + restPos*rest
 		posOutput = LerpVector(fTime()*.3, posOutput, posTarget)
+		angTarget = self.aimDiff*2*self.ironMul
 		angOutput = LerpAngle(fTime()*.3, angOutput, angTarget)
 
 		ang:RotateAroundAxis(ang:Right(), angOutput[1])
 		ang:RotateAroundAxis(ang:Up(), angOutput[2])
 		ang:RotateAroundAxis(ang:Forward(), angOutput[3])
-
-		local Right 	= ang:Right()
-		local Up 		= ang:Up()
-		local Forward 	= ang:Forward()	
 
 		pos = pos + posOutput.x * Right 
 		pos = pos + posOutput.y * Forward
@@ -483,12 +507,13 @@ function SWEP:CSShootBullet( dmg, recoil, numbul, cone )
 	print(1)
 	numbul 	= numbul 	or 1
 	cone 	= cone 		or 0.01
+	local ironMul = (self:GetIronsight() and .5 or 1)
 
 	local bullet = {}
 	bullet.Num 		= numbul
-	bullet.Src 		= self.Owner:GetShootPos()			
-	bullet.Dir 		= self.Owner:GetAimVector()			
-	bullet.Spread 	= Vector( cone, cone, 0 )			
+	bullet.Src 		= self.Owner:GetShootPos()
+	bullet.Dir 		= (self.Owner:EyeAngles() + self.Owner:GetViewPunchAngles()):Forward()
+	bullet.Spread 	= Vector( cone, cone, 0 )*ironMul			
 	bullet.Tracer	= 4									
 	bullet.Force	= 5									
 	bullet.Damage	= dmg
@@ -500,6 +525,8 @@ function SWEP:CSShootBullet( dmg, recoil, numbul, cone )
 		util.Effect( "btImpact", e )
 	end
 	
+	//self.Owner:ViewPunchReset()
+	self.Owner:ViewPunch(Angle(self.Primary.Recoil*-math.Rand(.8, 1), self.Primary.Recoil*math.Rand(-1, 1), 0)*ironMul)
 	self.Owner:FireBullets( bullet )
 	self.Owner:MuzzleFlash()								
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )	
@@ -529,15 +556,16 @@ local function addVector(vec, vec2, ang)
 	return vec
 end
 
-SWEP.NextSecondaryAttack = 0
+SWEP.NextSecondaryAtastck = 0
 function SWEP:SecondaryAttack()
-	if ( self.NextSecondaryAttack > CurTime() ) then return end
+	if (self:GetSprint() == true or self:GetReloading() == true) then
+		return		
+	end
 	
 	self:PlaySequence(self:GetIronAnimation())
 	self:SetIronsight(!self:GetIronsight())
 	self.Weapon:SetNextPrimaryFire( CurTime() + .4 )
-	
-	self.NextSecondaryAttack = CurTime() + 0.3
+	self.Weapon:SetNextSecondaryFire( CurTime() + .4 )
 end
 
 function SWEP:DrawHUD()

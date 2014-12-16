@@ -14,7 +14,7 @@ if ( CLIENT ) then
 end
 
 SWEP.HoldType			= "ar2"
-SWEP.Base				= "weapon_r500"
+SWEP.Base				= "weapon_nmrih_shotgunbase"
 SWEP.Category			= "No More Room In Hell"
 
 SWEP.Spawnable			= true
