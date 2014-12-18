@@ -130,8 +130,6 @@ if (CLIENT) then
 		self.oldAimAngle = self.aimAngle
 		self.ironMul = int(.1, self.ironMul, (!self.Owner:OnGround() or self:GetIronsight() or self:GetSprint()) and (!self.Owner:OnGround() and 0 or .1) or 1)
 		self.aimDiff = self.aimDiff
-		print(FT)
-		print(self.aimDiff)
 
 		local Right 	= EA:Right()
 		local Up 		= EA:Up()
