@@ -27,12 +27,12 @@ SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Sound			= Sound( "Weapon_500Pump.Single" )
-SWEP.Primary.Recoil			= 1
+SWEP.Primary.Recoil			= 4
 SWEP.Primary.Damage			= 30
 SWEP.Primary.NumShots		= 12
-SWEP.Primary.Cone			= 0.08
+SWEP.Primary.Cone			= 0.05
 SWEP.Primary.ClipSize		= 5
-SWEP.Primary.Delay			= 0.8
+SWEP.Primary.Delay			= 1.1
 SWEP.Primary.DefaultClip	= 0
 SWEP.Primary.NumShot	= 12
 SWEP.Primary.Automatic		= false

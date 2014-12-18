@@ -29,7 +29,7 @@ SWEP.Primary.Sound			= Sound( "Weapon_Mkiii.Single" )
 SWEP.Primary.Recoil			= 0.4
 SWEP.Primary.Damage			= 30
 SWEP.Primary.NumShots		= 1
-SWEP.Primary.Cone			= 0.04
+SWEP.Primary.Cone			= 0.02
 SWEP.Primary.ClipSize		= 10
 SWEP.Primary.Delay			= 0.2
 SWEP.Primary.DefaultClip	= 0
@@ -42,6 +42,8 @@ SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 SWEP.ShellType = SHELL_22LR
 
+SWEP.EmptyReloadTime = 3.2
+SWEP.ReloadTime = 2.3
 
 SWEP.animTable = {
 	[ANIM_IDLE] = {

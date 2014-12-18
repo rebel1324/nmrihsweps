@@ -26,10 +26,10 @@ SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Sound			= Sound( "Weapon_mac10.Single" )
-SWEP.Primary.Recoil			= 0.7
+SWEP.Primary.Recoil			= 1.2
 SWEP.Primary.Damage			= 30
 SWEP.Primary.NumShots		= 1
-SWEP.Primary.Cone			= 0.03
+SWEP.Primary.Cone			= 0.04
 SWEP.Primary.ClipSize		= 30
 SWEP.Primary.Delay			= 0.09
 SWEP.Primary.DefaultClip	= 0
@@ -45,6 +45,9 @@ SWEP.IronSightsPos 		= Vector( 6.7, -3, 3 )
 SWEP.IronSightsAng 		= Vector( 0, 5, 5 )
 SWEP.ShellType = SHELL_45ACP
 SWEP.TimeToSprint = 0
+
+SWEP.EmptyReloadTime = 3.4
+SWEP.ReloadTime = 2.8
 
 SWEP.animTable = {
 

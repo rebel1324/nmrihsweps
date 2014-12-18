@@ -80,7 +80,7 @@ if (CLIENT) then
 	local sin, cos = math.sin, math.cos
 	local clamp = math.Clamp
 
-	local function fTime() return math.Clamp(FrameTime(), 1/15, 1) end
+	local function fTime() return FrameTime()*20 end
 
 	local function int(delta, from, to)
 		local intType = type(from)
@@ -96,15 +96,17 @@ if (CLIENT) then
 	end
 
 	local bobPos = Vector()
+	local swayPos = Vector()
 	local lateBobPos = Vector()
 	local restPos = Vector()
+	local swayLimit = 5
 	SWEP.aimAngle = Angle()
 	SWEP.oldAimAngle = Angle()
 	SWEP.aimDiff = Angle()
 	SWEP.ironMul = 1
 	function SWEP:GetViewModelPosition( pos, ang )
 		local owner = self.Owner
-		local EP, EA = EyePos(), EyeAngles()
+		local EP, EA, FT = EyePos(), EyeAngles(), FrameTime()
 		local PA = owner:GetViewPunchAngles()
 		local vel = clamp(owner:GetVelocity():Length2D()/owner:GetWalkSpeed(), 0, 1.5)
 		local rest = 1 - clamp(owner:GetVelocity():Length2D()/20, 0, 1)
@@ -115,8 +117,21 @@ if (CLIENT) then
 
 		self.aimAngle = owner:EyeAngles()	
 		self.aimDiff = self.aimAngle - self.oldAimAngle
+		for i = 1, 3 do
+			if (360 - math.abs(self.aimDiff[i]) < 180) then
+				print(1)
+				if (self.aimDiff[i] < 0) then
+					self.aimDiff[i] = self.aimDiff[i] + 360
+				else
+					self.aimDiff[i] = self.aimDiff[i] - 360
+				end
+			end
+		end
 		self.oldAimAngle = self.aimAngle
-		self.ironMul = Lerp(fTime()*.1, self.ironMul, (self:GetIronsight() or self:GetSprint()) and .1 or 1)
+		self.ironMul = int(.1, self.ironMul, (!self.Owner:OnGround() or self:GetIronsight() or self:GetSprint()) and (!self.Owner:OnGround() and 0 or .1) or 1)
+		self.aimDiff = self.aimDiff
+		print(FT)
+		print(self.aimDiff)
 
 		local Right 	= EA:Right()
 		local Up 		= EA:Up()
@@ -127,11 +142,17 @@ if (CLIENT) then
 		bobPos[3] = sin(curStep)/1.5*vel
 		restPos[3] = sin(CurTime()*2)*4
 		restPos[1] = cos(CurTime()*1)*3
+		swayPos[1] = clamp(int(.1, swayPos[1], self.aimDiff[2]), -swayLimit, swayLimit)
+		swayPos[3] = clamp(int(.1, swayPos[3], -self.aimDiff[1]), -swayLimit, swayLimit)
+		for i = 1, 3 do
+			self.aimDiff[i] = clamp(self.aimDiff[i], -swayLimit, swayLimit)
+		end
 
-		posTarget = bobPos*15*self.ironMul + restPos*rest
-		posOutput = LerpVector(fTime()*.3, posOutput, posTarget)
-		angTarget = self.aimDiff*2*self.ironMul
-		angOutput = LerpAngle(fTime()*.3, angOutput, angTarget)
+		posTarget = bobPos*5*self.ironMul + restPos*rest*self.ironMul + swayPos*10*self.ironMul
+		posOutput = LerpVector(.05, posOutput, posTarget)
+
+		angTarget = self.aimDiff*self.ironMul
+		angOutput = LerpAngle(.1, angOutput, angTarget)
 
 		ang:RotateAroundAxis(ang:Right(), angOutput[1])
 		ang:RotateAroundAxis(ang:Up(), angOutput[2])
@@ -340,6 +361,10 @@ function SWEP:CanReload()
 			reserve > 0)
 end
 
+function SWEP:GetCheckTime()
+	return self.CheckTime or 3
+end
+
 function SWEP:CheckAmmo()
 	self:SetCheckAmmo(true)
 	self:PlaySequence(self:GetIdleAnimation())
@@ -347,7 +372,7 @@ function SWEP:CheckAmmo()
 		self:PlaySequence(self:GetCheckAnimation())
 	end)			
 
-	local checkTime =self.CheckAmmoTime or 3
+	local checkTime = self:GetCheckTime() 
 	self:SetNextPrimaryFire(CurTime() + checkTime)
 	self:SetNextSecondaryFire(CurTime() + checkTime)
 	timer.Simple(checkTime, function()
@@ -461,10 +486,13 @@ function SWEP:MeleeAttack()
 	self:SetNextSecondaryFire(CurTime() + self.Melee.Delay)
 end
 
-function SWEP:PrimaryAttack()
+function SWEP:GetPrimaryDelay()
+	return self.Primary.Delay
+end
 
-	self.Weapon:SetNextSecondaryFire(CurTime() + self.Primary.Delay)
-	self.Weapon:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
+function SWEP:PrimaryAttack()
+	self.Weapon:SetNextSecondaryFire(CurTime() + self:GetPrimaryDelay())
+	self.Weapon:SetNextPrimaryFire(CurTime() + self:GetPrimaryDelay())
 
 	if (!IsFirstTimePredicted()) then
 		return
@@ -502,58 +530,47 @@ function SWEP:PlaySequence(name)
 	vm:SetPlaybackRate(1)
 end
 
+function SWEP:GetSpread()
+	return
+end
+
 function SWEP:CSShootBullet( dmg, recoil, numbul, cone )
 	self.Owner:LagCompensation( true )
-	print(1)
-	numbul 	= numbul 	or 1
-	cone 	= cone 		or 0.01
-	local ironMul = (self:GetIronsight() and .5 or 1)
 
-	local bullet = {}
-	bullet.Num 		= numbul
-	bullet.Src 		= self.Owner:GetShootPos()
-	bullet.Dir 		= (self.Owner:EyeAngles() + self.Owner:GetViewPunchAngles()):Forward()
-	bullet.Spread 	= Vector( cone, cone, 0 )*ironMul			
-	bullet.Tracer	= 4									
-	bullet.Force	= 5									
-	bullet.Damage	= dmg
-	bullet.Callback = function(client, trace, damageInfo)
-		local e = EffectData()
-		e:SetOrigin(trace.HitPos)
-		e:SetNormal(trace.HitNormal)
-		e:SetScale(math.Rand(.4, .5))
-		util.Effect( "btImpact", e )
-	end
-	
-	//self.Owner:ViewPunchReset()
-	self.Owner:ViewPunch(Angle(self.Primary.Recoil*-math.Rand(.8, 1), self.Primary.Recoil*math.Rand(-1, 1), 0)*ironMul)
-	self.Owner:FireBullets( bullet )
-	self.Owner:MuzzleFlash()								
-	self.Owner:SetAnimation( PLAYER_ATTACK1 )	
-	self:PlaySequence(self:GetIdleAnimation())
-	timer.Simple(0, function()
-		self:PlaySequence(self:GetFireAnimation())
-	end)			
+		numbul 	= numbul 	or 1
+		cone 	= cone 		or 0.01
+		local ironMul = (self:GetIronsight() and (self.IronPrecise or .5) or 1)
+
+		local bullet = {}
+		bullet.Num 		= numbul
+		bullet.Src 		= self.Owner:GetShootPos()
+		bullet.Dir 		= (self.Owner:EyeAngles() + self.Owner:GetViewPunchAngles()):Forward()
+		bullet.Spread 	= Vector( cone, cone, 0 )*ironMul			
+		bullet.Tracer	= 4									
+		bullet.Force	= 5									
+		bullet.Damage	= dmg
+		bullet.Callback = function(client, trace, damageInfo)
+			local e = EffectData()
+			e:SetOrigin(trace.HitPos)
+			e:SetNormal(trace.HitNormal)
+			e:SetScale(math.Rand(.4, .5))
+			util.Effect( "btImpact", e )
+		end
+		
+		//self.Owner:ViewPunchReset()
+		self.Owner:ViewPunch(Angle(self.Primary.Recoil*-math.Rand(.8, 1), self.Primary.Recoil*math.Rand(-1, 1), 0)*ironMul)
+		self.Owner:FireBullets( bullet )
+		self.Owner:MuzzleFlash()								
+		self.Owner:SetAnimation( PLAYER_ATTACK1 )	
+		self:PlaySequence(self:GetIdleAnimation())
+		timer.Simple(0, function()
+			self:PlaySequence(self:GetFireAnimation())
+		end)			
 
 	self.Owner:LagCompensation( false )
 
 	if ( self.Owner:IsNPC() ) then return end
 
-end
-
-local IRONSIGHT_TIME = 0.25
-
-local goodVector = {
-	[1] = function(ang) return ang:Right() end,
-	[2] = function(ang) return ang:Forward() end,
-	[3] = function(ang) return ang:Up() end,
-}
-local function addVector(vec, vec2, ang)
-	for i = 1, 3 do
-		vec = vec + goodVector[i](ang)*vec2[i]
-	end
-
-	return vec
 end
 
 SWEP.NextSecondaryAtastck = 0

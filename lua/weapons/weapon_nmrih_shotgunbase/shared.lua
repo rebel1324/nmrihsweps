@@ -100,7 +100,7 @@ function SWEP:Think()
 			self.Owner:RemoveAmmo(1, self.Weapon:GetPrimaryAmmoType())
 
 			-- to unscrew reload animation -.-
-			self:PlaySequence("reload_end")
+			self:PlaySequence(self.LoadEndAnim or "reload_end")
 			local vm = self.Owner:GetViewModel()
 			vm:SetPlaybackRate(0)
 
@@ -150,7 +150,7 @@ function SWEP:Reload(call)
 	end
 
 	self.nextLoad = CurTime() + .8
-	self:PlaySequence("reload_start")
+	self:PlaySequence(self.LoadStartAnim or "reload_start")
 	self:SetIronsight(false)
 	self:SetReloading(true)
 end

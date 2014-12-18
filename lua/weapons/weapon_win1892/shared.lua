@@ -14,7 +14,7 @@ if ( CLIENT ) then
 end
 
 SWEP.HoldType			= "ar2"
-SWEP.Base				= "weapon_r500"
+SWEP.Base				= "weapon_nmrih_shotgunbase"
 SWEP.Category			= "No More Room In Hell"
 
 SWEP.Spawnable			= true
@@ -28,14 +28,14 @@ SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Sound			= Sound( "Weapon_22Pistol.Single" )
-SWEP.Primary.Recoil			= 1
+SWEP.Primary.Recoil			= 3
 SWEP.Primary.Damage			= 30
 SWEP.Primary.NumShots		= 1
-SWEP.Primary.Cone			= 0.02
-SWEP.Primary.ClipSize		= 10
-SWEP.Primary.Delay			= 0.1
+SWEP.Primary.Cone			= 0.005
+SWEP.Primary.ClipSize		= 15
+SWEP.Primary.Delay			= 1.5
 SWEP.Primary.DefaultClip	= 0
-SWEP.Primary.Automatic		= true
+SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "22LR"
 
 SWEP.Secondary.ClipSize		= -1
@@ -45,6 +45,8 @@ SWEP.Secondary.Ammo			= "none"
 
 SWEP.ShellType = SHELL_762
 SWEP.ShellAng = Angle(-30, 0, 0)
+
+SWEP.LoadAnim = "reload"
 
 SWEP.animTable = {
 	[ANIM_IDLE] = {
@@ -80,7 +82,7 @@ SWEP.animTable = {
 			"draw"
 		},
 		[STATUS_EMPTY] = {
-			"draw"
+			"drawdry"
 		},
 	},
 	

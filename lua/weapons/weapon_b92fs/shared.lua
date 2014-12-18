@@ -24,7 +24,7 @@ SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Sound			= Sound( "Weapon_Beretta.Single" )
-SWEP.Primary.Recoil			= 1.8
+SWEP.Primary.Recoil			= 1.2
 SWEP.Primary.Damage			= 16
 SWEP.Primary.NumShots		= 1
 SWEP.Primary.Cone			= 0.03
@@ -40,6 +40,9 @@ SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 SWEP.ShellType = SHELL_9MM
 SWEP.ShellAng = Angle(-30, 0, 0)
+
+SWEP.EmptyReloadTime = 2
+SWEP.ReloadTime = 2
 
 SWEP.animTable = {
 

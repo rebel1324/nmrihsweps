@@ -43,6 +43,9 @@ SWEP.Secondary.Ammo			= "none"
 SWEP.ShellType = SHELL_45ACP
 SWEP.ShellAng = Angle(-30, 0, 0)
 
+SWEP.EmptyReloadTime = 3.2
+SWEP.ReloadTime = 2.7
+
 SWEP.animTable = {
 	[ANIM_IDLE] = {
 		[ATTACK_NORMAL] = {

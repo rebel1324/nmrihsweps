@@ -26,10 +26,10 @@ SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Sound			= Sound( "Weapon_MP5.Single" )
-SWEP.Primary.Recoil			= 0.2
+SWEP.Primary.Recoil			= 1.1
 SWEP.Primary.Damage			= 20
 SWEP.Primary.NumShots		= 1
-SWEP.Primary.Cone			= 0.01
+SWEP.Primary.Cone			= 0.02
 SWEP.Primary.ClipSize		= 30
 SWEP.Primary.Delay			= 0.08
 SWEP.Primary.DefaultClip	= 0
@@ -41,6 +41,9 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 SWEP.ShellType = SHELL_9MM
+
+SWEP.EmptyReloadTime = 4.8
+SWEP.ReloadTime = 3.3
 
 SWEP.animTable = {
 	[ANIM_IDLE] = {

@@ -44,6 +44,9 @@ SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 SWEP.ShellType = SHELL_556
 
+SWEP.EmptyReloadTime = 3.8
+SWEP.ReloadTime = 2.8
+
 SWEP.animTable = {
 	[ANIM_IDLE] = {
 		[ATTACK_NORMAL] = {

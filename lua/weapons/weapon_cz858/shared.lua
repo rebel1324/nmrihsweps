@@ -26,10 +26,10 @@ SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Sound			= Sound( "Weapon_cz858.Single" )
-SWEP.Primary.Recoil			= 1.5
+SWEP.Primary.Recoil			= 2
 SWEP.Primary.Damage			= 40
 SWEP.Primary.NumShots		= 1
-SWEP.Primary.Cone			= 0.02
+SWEP.Primary.Cone			= 0.015
 SWEP.Primary.ClipSize		= 30
 SWEP.Primary.Delay			= 0.1
 SWEP.Primary.DefaultClip	= 0
@@ -40,6 +40,9 @@ SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 SWEP.ShellType = SHELL_762
 SWEP.ShellAng = Angle(-10, -20, 0)
+
+SWEP.EmptyReloadTime = 4
+SWEP.ReloadTime = 3
 
 SWEP.animTable = {
 	[ANIM_HOLSTER] = {

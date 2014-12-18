@@ -26,12 +26,12 @@ SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Sound			= Sound( "Weapon_686.Single" )
-SWEP.Primary.Recoil			= 1
+SWEP.Primary.Recoil			= 3
 SWEP.Primary.Damage			= 60
 SWEP.Primary.NumShots		= 1
-SWEP.Primary.Cone			= 0.02
+SWEP.Primary.Cone			= 0.01
 SWEP.Primary.ClipSize		= 6
-SWEP.Primary.Delay			= 0.1
+SWEP.Primary.Delay			= 0.7
 SWEP.Primary.DefaultClip	= 0
 SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "357MAG"
@@ -41,6 +41,7 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 SWEP.NoShell = true
+SWEP.ReloadTime = 3.5
 
 SWEP.animTable = {
 	[ANIM_IDLE] = {
@@ -136,7 +137,7 @@ SWEP.animTable = {
 		[STATUS_EMPTY] = {
 			[0] = "Idle_to_Sprint_Empty",
 			[1] = "Sprint_to_Idle_Empty",
-			[2] = "Sprint_Loop_Empty_Maglite"
+			[2] = "Sprint_Maglite_Empty_Loop"
 		},
 	},
 
@@ -159,6 +160,11 @@ SWEP.animTable = {
 	},
 }
 
+SWEP.IronPrecise = .1
+
+function SWEP:GetPrimaryDelay()
+	return (self:GetIronsight() and 1.8 or self.Primary.Delay) 
+end
 
 btSoundRegister("Weapon_686.Single", {
 	"weapons/firearms/hndg_sw686/revolver_fire_01.wav",
