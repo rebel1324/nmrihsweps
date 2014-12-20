@@ -50,15 +50,27 @@ SWEP.DeployTime = 1
 if (CLIENT) then
 	local matBeam = Material( "effects/lamp_beam" )
 	local GLOW_MATERIAL = Material("sprites/glow04_noz.vmt")
-	function SWEP:ViewModelDrawn()
+	function SWEP:PostDrawViewModel()
 		local vm = self.Owner:GetViewModel()
 		local at = vm:LookupAttachment("nmrih_trace_start")
 		local atpos = vm:GetAttachment(at)
 
 		if (!self.nextRecord or self.nextRecord < CurTime()) then
-			self.trailPos.insert(atpos.Pos + atpos.Ang:Right()*10)
-			self.nextRecord = CurTime() + .02
+			self.trailPos.insert(atpos.Pos + atpos.Ang:Forward() + atpos.Ang:Up() + atpos.Ang:Right())
+			self.nextRecord = CurTime() + .03
 		end
+
+		render.SetMaterial( matBeam )
+			cam.IgnoreZ()
+		cam.Start3D(EyePos(), EyeAngles())
+			render.StartBeam( 4 )
+				render.AddBeam(atpos.Pos + atpos.Ang:Forward() + atpos.Ang:Up() + atpos.Ang:Right(), 8, 1, Color( 255, 255, 255, 255) )
+				render.AddBeam(self.trailPos[0], 4, 1, Color(255, 255, 255, 255) )
+				render.AddBeam(self.trailPos[1], 2, 1, Color( 255, 255, 255, 255) )
+				render.AddBeam(self.trailPos[2], 1, 1, Color( 255, 255, 255, 255) )
+				render.AddBeam(self.trailPos[3], 0, 1, Color( 255, 255, 255, 255) )
+			render.EndBeam()
+		cam.End3D()
 	end
 
 	local posOutput = Vector(0, 0, 0)
@@ -217,6 +229,7 @@ function SWEP:Initialize()
 			[0] = Vector(0, 0, 0),
 			[1] = Vector(0, 0, 0),
 			[2] = Vector(0, 0, 0),
+			[3] = Vector(0, 0, 0),
 		}
 		function self.trailPos.insert(vec)
 			for i = 0, 2 do
@@ -297,7 +310,10 @@ function SWEP:Reload(call)
 end
 
 function SWEP:GoSprint(bool)
+	print(bool)
 	if (self:GetMelee() != true) then
+		self:SetAttack(false)
+		self:SetNextCharge(CurTime())
 		self:PlaySequence(bool and self:GetSprintAnimation() or self:GetIdleAnimation())
 		self:SetSprint(bool)
 	end
@@ -364,17 +380,19 @@ end
 
 
 function SWEP:ChargeAttack()
-	self:SetCharge(false)
 	self:SetAttack(false)
 	
 	self:PlaySequence(self:GetIdleAnimation())
 	timer.Simple(0, function()
+		print(self:GetAttackAnimation())
 		self:PlaySequence(self:GetAttackAnimation())
+		self:SetCharge(false)
 	end)	
+
 end
 
 function SWEP:PrimaryAttack(bool)
-	self:SetNextCharge(CurTime() + .5)
+	self:SetNextCharge(CurTime() + .2)
 	self:SetAttack(true)
 
 	if (bool != true) then

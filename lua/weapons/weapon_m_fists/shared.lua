@@ -3,7 +3,7 @@ if ( SERVER ) then
 end
 
 if ( CLIENT ) then
-	SWEP.PrintName			= "Crowbar"			
+	SWEP.PrintName			= "Fists"			
 	SWEP.Author				= "Black Tea"
 	SWEP.Slot				= 3
 	SWEP.SlotPos			= 1
@@ -15,7 +15,7 @@ SWEP.Category			= "No More Room In Hell - Melee"
 SWEP.Spawnable			= true
 SWEP.AdminSpawnable		= true
 
-SWEP.ViewModel			= "models/weapons/me_crowbar/v_me_crowbar.mdl"
+SWEP.ViewModel			= "models/weapons/me_fists/v_me_fists.mdl"
 SWEP.WorldModel			= "models/weapons/w_rif_m4a1.mdl"
 
 SWEP.Weight				= 5
@@ -39,7 +39,7 @@ SWEP.animTable = {
 	},
 	
 	[ANIM_FIRE] = {
-		[STATUS_NORMAL] = {"Attack_Quick_2"},
+		[STATUS_NORMAL] = {"Attack_Quick_1"},
 		[STATUS_CHARGE] = {"Attack_Charge_End"}
 	},
 
@@ -55,3 +55,6 @@ SWEP.animTable = {
 		"Attack_Charge_Begin"
 	}
 }
+
+function SWEP:ViewModelDrawn()
+end
