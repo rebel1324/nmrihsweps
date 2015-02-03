@@ -163,7 +163,8 @@ if (CLIENT) then
 		return pos, ang
 	end
 
-	function SWEP:FireAnimationEvent(pos,ang,event)
+	function SWEP:FireAnimationEvent(pos, ang, event, arg)
+		print(arg)
 		local eventNum = eventTable[event]
 
 		if (eventNum) then
